@@ -1,0 +1,28 @@
+{
+  "name": "knex-select-parametrizer",
+  "version": "0.1.0",
+  "author": "Carlos González ( c27gc in Github )",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["/dist"],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.3"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development ts-node-dev --ignore-watch node_modules ./index.ts"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.24",
+    "knex": "^1.0.7",
+    "objection": "^3.0.1",
+    "pg": "^8.7.3",
+    "ts-node-dev": "^1.1.8"
+  }
+}
