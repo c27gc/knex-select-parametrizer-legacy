@@ -1,5 +1,4 @@
 import  SelectRequestParametrizer from './src/entities/selectParametrizer.entity';
-
 export default SelectRequestParametrizer;
 
 export * from './src/types/types';
@@ -21,6 +20,8 @@ export * from './src/types/types';
 //   pool: { min: 0, max: 10 }
 // });
 
+// import qs from 'qs';
+// import { IQueryParameters } from './src/types/types';
 
 // const inputFilter: IQueryParameters = {
 //   fields: ['group.id as group_id', 'group.name as group_name', 'user.id', 'group.id as group_id', 'first_name', 'last_name'],
@@ -43,6 +44,8 @@ export * from './src/types/types';
 //   },
 //   count: true
 // };
+
+// console.log(qs.stringify(inputFilter));
 
 
 // interface IUser {

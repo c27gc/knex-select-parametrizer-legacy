@@ -12,8 +12,9 @@
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "outDir": "./dist",
-    "declaration": true
+    "declaration": true,
+
   },
-  "include": ["src/**/*.ts", "*.ts"],
+  "include": ["src/**/*.ts", "*.ts", "src/modifiers/fields.modifier.oldjs"],
   "exclude": ["node_modules"]
 }

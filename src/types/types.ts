@@ -1,30 +1,38 @@
+import { Knex } from 'knex';
+
 export interface IFilter {
   fieldIdentifier: string;
   operator: string;
   value: string | number | number[] | string[];
 }
 
+export type NumberFilterOperators = '<' | '<=' | '>' | '>=' | '=' | '!='
+
 export interface INumberFilter extends IFilter {
   fieldIdentifier: string;
-  operator: '<' | '<=' | '>' | '>=' | '=' | '!=';
+  operator: NumberFilterOperators;
   value: number;
 }
 
+export type RangeFilterOperators = 'between' | 'notBetween' | 'in' | 'notIn'
+
 export interface IRangeNumberFilter extends IFilter {
   fieldIdentifier: string;
-  operator: 'between' | 'notBetween' | 'in' | 'notIn';
+  operator: RangeFilterOperators;
   value: [number, number];
 }
 
 export interface IRangeStringFilter extends IFilter {
   fieldIdentifier: string;
-  operator: 'between' | 'notBetween' | 'in' | 'notIn';
+  operator: RangeFilterOperators;
   value: [string, string];
 }
 
+export type StringFilterOperators = 'like' | 'ilike' | 'notLike' | 'isNull' | 'isNotNull';
+
 export interface IStringFilter extends IFilter {
   fieldIdentifier: string;
-  operator: 'like' | 'ilike' | 'notLike' | 'isNull' | 'isNotNull';
+  operator: StringFilterOperators;
   value: string;
 }
 
@@ -43,7 +51,7 @@ export interface IPagination {
 }
 
 export interface IQueryParameters {
-  fields: string[] | '*';
+  fields?: string[];
   filters?: Filters;
   sort?: ISort;
   pagination?: IPagination;
@@ -52,4 +60,28 @@ export interface IQueryParameters {
 
 export interface IFieldMapping {
   [key: string]: string;
+}
+
+export type ValidationDataTypes = "string" | "array" | "object" | "number" | "boolean" | "undefined";
+
+export interface IValidation {
+  propertyName: string;
+  isValid: boolean;
+}
+
+export type QueryResponse<Type> = {
+  data: Type[];
+  numberOfElements?: number;
+} 
+
+export interface IFieldMatch {
+  internalAlias: string,
+  externalAlias: string | undefined,
+}
+
+export interface IOptional {
+  fieldMapping?: IFieldMapping;
+  groupBy?: string[];
+  strictFields?: boolean;
+  aggregateFunction?: Knex.Raw;
 }

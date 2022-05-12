@@ -1,28 +1,43 @@
 {
   "name": "knex-select-parametrizer",
-  "version": "0.1.0",
+  "version": "0.1.16",
   "author": "Carlos González ( c27gc in Github )",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["/dist"],
+  "files": [
+    "/dist"
+  ],
   "devDependencies": {
+    "@types/jest": "^27.5.0",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.0.3",
     "prettier": "^2.6.2",
+    "ts-jest": "^28.0.1",
     "typescript": "^4.6.3"
   },
   "scripts": {
-    "dev": "NODE_ENV=development ts-node-dev --ignore-watch node_modules ./index.ts"
+    "dev": "NODE_ENV=development ts-node-dev --ignore-watch node_modules ./index.ts",
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "test": "jest --watch"
   },
   "dependencies": {
     "@types/node": "^17.0.24",
-    "knex": "^1.0.7",
+    "knex": "^2.0.0",
     "objection": "^3.0.1",
     "pg": "^8.7.3",
     "ts-node-dev": "^1.1.8"
+  },
+  "peerDependencies": {
+    "knex": "^2.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "preset": "ts-jest"
   }
 }
