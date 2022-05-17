@@ -84,4 +84,5 @@ export interface IOptional {
   groupBy?: string[];
   strictFields?: boolean;
   aggregateFunction?: Knex.Raw;
+  aggregateField?: string;
 }

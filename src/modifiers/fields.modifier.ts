@@ -6,38 +6,39 @@ class FieldModifier {
   public fieldMask: IFieldMapping;
   private strictFields: boolean | undefined;
 
-  constructor(fields: string[], fieldMask: IFieldMapping, strictFields?: boolean ) {
+  constructor(fields: string[], fieldMask: IFieldMapping, strictFields?: boolean) {
     this.fields = fields;
     this.fieldMask = fieldMask;
     this.strictFields = strictFields;
   }
 
   fieldStrictMode() {
+
     const fieldMappingKeys = Object.keys(this.fieldMask);
-      let newQueryParameters: string[] = fieldMappingKeys.reduce((accumulate: string[], current: string) => {
-        let newField: string | undefined;
-        if (
-          this.fields &&
-          this.fields.some(field => {
-            const cleanField = field.replace(/\s+/g, ' ').trim();
-            const included = cleanField.includes(current + ' as ') || field == current;
-            newField = included ? cleanField : undefined;
+    let newQueryParameters: string[] = fieldMappingKeys.reduce((accumulate: string[], current: string) => {
+      let newField: string | undefined;
+      if (
+        this.fields &&
+        this.fields.some(field => {
+          const cleanField = field.replace(/\s+/g, ' ').trim();
+          const included = cleanField.includes(current + ' as ') || field == current;
+          newField = included ? cleanField : undefined;
 
-            // this works because some stops when it finds the first match, and returns the correct value in newField
-            return included;
-          })
-        ) {
-          newField && accumulate.push(newField);
-        }
+          // this works because some stops when it finds the first match, and returns the correct value in newField
+          return included;
+        })
+      ) {
+        newField && accumulate.push(newField);
+      }
 
-        return accumulate;
-      }, []);
-      return newQueryParameters;
+      return accumulate;
+    }, []);
+    return newQueryParameters;
   }
 
-  execute() {
+  execute(aggregateField?: string) {
 
-    if ( this.strictFields ) {
+    if (this.strictFields) {
       this.fieldStrictMode();
     }
 
@@ -48,10 +49,14 @@ class FieldModifier {
         const internalAlias: string = fieldClean.split(' as ')[0];
         const externalAlias: string = fieldClean.split(' as ')[1];
 
-          accumulate[internalAlias] = {
-            internalAlias,
-            externalAlias
-          }
+        if (internalAlias == aggregateField) {
+          return accumulate;
+        }
+
+        accumulate[internalAlias] = {
+          internalAlias,
+          externalAlias
+        }
 
 
         return accumulate;
@@ -66,6 +71,8 @@ class FieldModifier {
             externalAlias
           }
 
+        } else if (aggregateField) {
+          return accumulate;
         } else {
           throw new Error(`Field ${internalAlias} is not defined in the field mask`);
         }
@@ -76,7 +83,7 @@ class FieldModifier {
 
     }, {});
 
-    const finalAlias = Object.values(aliasInformation).reduce((accumulate: { [key: string]: string }, current: IFieldMatch ) => {
+    const finalAlias = Object.values(aliasInformation).reduce((accumulate: { [key: string]: string }, current: IFieldMatch) => {
 
       if (current.externalAlias) {
         accumulate[current.internalAlias] = current.externalAlias;
@@ -96,9 +103,9 @@ class FieldModifier {
       throw new Error(`Duplicated alias: ${duplicatedAlias.join(', ')}.`);
     }
 
-    return Object.keys(aliasInformation).map( internalAlias => {
+    return Object.keys(aliasInformation).map(internalAlias => {
       return `${this.fieldMask[internalAlias].trim()} as ${finalAlias[internalAlias].trim()}`;
-    }) 
+    })
 
   }
 }

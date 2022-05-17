@@ -16,12 +16,14 @@ export default class SelectRequestParametrizer<Type> {
   private count: boolean | undefined;
   private optional: IOptional | undefined;
   private aggregateFunction: Knex.Raw | undefined;
+  private aggregateField: string | undefined;
   // fieldMapping: IFieldMapping;
 
   constructor(queryParameters: IQueryParameters, knexConnection: Knex.QueryBuilder, optional?: IOptional) {
     this.knexConnection = knexConnection;
     this.optional = optional;
     this.aggregateFunction = optional?.aggregateFunction;
+    this.aggregateField = optional?.aggregateField;
 
     if (optional && optional.strictFields && !optional.fieldMapping) {
       throw new Error('Field mapping { optional.fieldMapping } is required when strict fields are used');
@@ -57,9 +59,19 @@ export default class SelectRequestParametrizer<Type> {
       this.initialFields = queryParameters.fields;
       result = queryParameters.fields;
     } else {
+      if ( this.aggregateFunction && !this.aggregateField ) {
+        throw new Error('Aggregate field { optional.aggregateField } is required when aggregate data is used');
+      }
+
       this.initialFields = queryParameters.fields;
+
+     
+      if( this.aggregateField ) {
+        this.initialFields.concat([this.aggregateField]);
+      } 
+
       const fieldModifier =  new FieldModifier(queryParameters.fields, fieldMapping, this.optional && this.optional.strictFields );
-      result = fieldModifier.execute();
+      result = fieldModifier.execute(this.aggregateField);
     }
 
     return result;
@@ -89,6 +101,10 @@ export default class SelectRequestParametrizer<Type> {
         accumulate[cleanField.split(' as ')[0]] = cleanField.split(' as ')[1];
       } else {
         accumulate[cleanField] = cleanField;
+      }
+
+      if ( this.aggregateField ) {
+        accumulate[this.aggregateField] = this.aggregateField;
       }
 
       return accumulate
