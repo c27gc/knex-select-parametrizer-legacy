@@ -1,5 +1,5 @@
 import { QueryResponse, Filters, Filter, ISort, IPagination, IQueryParameters, IFieldMapping, IOptional } from '../types/types';
-import { Knex } from 'knex';
+import knex, { Knex } from 'knex';
 import filterBuilder from '../builders/filter.builder';
 import sortBuilder from '../builders/sort.builder';
 import paginationBuilder from '../builders/pagination.builder';
@@ -111,12 +111,36 @@ export default class SelectRequestParametrizer<Type> {
     }, {}) : undefined;
   }
 
+  cleanFields() {
+    return this.fields.map( field => {
+        const standardField = field.replace(/\s+/g, ' ').trim()
+        if ( standardField.includes(' as ')) {
+          return standardField.split(' as ')[0];
+        } else {
+          return standardField;
+        }
+      })
+  }
+
   async run(): Promise< QueryResponse<Type> > {
     let numberOfElements;
     let result: QueryResponse<Type>
 
-    if (this.count) {
+    if (this.count && !this.aggregateFunction) {
       numberOfElements = await filterBuilder(this.knexConnection, this.filters).clone().select().count();
+    } else if ( this.count && this.aggregateFunction) {
+
+      const baseKnex =  knex({ client: 'pg'});
+      const knexConnectionCopy = this.knexConnection.clone();
+      const filtersCopy = this.filters;
+      
+      numberOfElements = baseKnex.count().from(  
+        function filteredData () {
+          filterBuilder(knexConnectionCopy, filtersCopy).clone()
+        }
+      )
+
+
     }
 
     const knexConnection = fieldsBuilder(this.knexConnection, this.fields, this.aggregateFunction);
@@ -126,14 +150,7 @@ export default class SelectRequestParametrizer<Type> {
     let sortedKnexConnection = sortBuilder(filteredKnexConnection, this.sort);
 
     if( this.aggregateFunction ) {
-      const cleanFields = this.fields.map( field => {
-        const standardField = field.replace(/\s+/g, ' ').trim()
-        if ( standardField.includes(' as ')) {
-          return standardField.split(' as ')[0];
-        } else {
-          return standardField;
-        }
-      })
+      const cleanFields = this.cleanFields();
       sortedKnexConnection = sortedKnexConnection.groupBy(cleanFields);
     }
 

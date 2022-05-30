@@ -1,6 +1,9 @@
 import  SelectRequestParametrizer from './src/entities/selectParametrizer.entity';
 export default SelectRequestParametrizer;
 
+import simpleStringOperatorAdapter_ from './src/adapters/filters/simpleStringOperator.adapter';
+export const simpleStringOperatorAdapter = simpleStringOperatorAdapter_;
+
 export * from './src/types/types';
 
 // import SelectRequestParametrizer from './src/entities/selectParametrizer.entity';

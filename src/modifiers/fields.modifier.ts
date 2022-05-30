@@ -49,7 +49,7 @@ class FieldModifier {
         const internalAlias: string = fieldClean.split(' as ')[0];
         const externalAlias: string = fieldClean.split(' as ')[1];
 
-        if (internalAlias == aggregateField) {
+        if (internalAlias == aggregateField || externalAlias == aggregateField) {
           return accumulate;
         }
 
