@@ -1,6 +1,6 @@
 {
   "name": "knex-select-parametrizer",
-  "version": "0.1.30",
+  "version": "0.1.42",
   "author": "Carlos González ( c27gc in Github )",
   "license": "MIT",
   "main": "dist/index.js",

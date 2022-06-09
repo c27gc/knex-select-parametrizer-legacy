@@ -1,5 +1,5 @@
 import { QueryResponse, Filters, Filter, ISort, IPagination, IQueryParameters, IFieldMapping, IOptional } from '../types/types';
-import knex, { Knex } from 'knex';
+import { Knex } from 'knex';
 import filterBuilder from '../builders/filter.builder';
 import sortBuilder from '../builders/sort.builder';
 import paginationBuilder from '../builders/pagination.builder';
@@ -25,11 +25,15 @@ export default class SelectRequestParametrizer<Type> {
     this.aggregateFunction = optional?.aggregateFunction;
     this.aggregateField = optional?.aggregateField;
 
-    if (optional && optional.strictFields && !optional.fieldMapping) {
+    if ( optional?.aggregateFunction && !optional?.knexConnection ) {
+      throw new Error('Knex connection is required when aggregate function is used');
+    }
+
+    if ( optional?.strictFields && !optional?.fieldMapping) {
       throw new Error('Field mapping { optional.fieldMapping } is required when strict fields are used');
     }
     
-    if (optional && !queryParameters.fields && optional.aggregateFunction) {
+    if ( !queryParameters.fields && optional?.aggregateFunction) {
       throw new Error('Fields { queryParameters.fields } are required when aggregate data is used');
     }
 
@@ -37,7 +41,7 @@ export default class SelectRequestParametrizer<Type> {
     //   throw new Error('Group by { optional.groupBy } is required when aggregate data is used');
     // }
 
-    if (optional && optional.groupBy && !optional.aggregateFunction) {
+    if ( optional?.groupBy && !optional?.aggregateFunction) {
       throw new Error('Aggregate data { optional.aggregateData } is required when group by is used');
     }
 
@@ -130,15 +134,19 @@ export default class SelectRequestParametrizer<Type> {
       numberOfElements = await filterBuilder(this.knexConnection, this.filters).clone().select().count();
     } else if ( this.count && this.aggregateFunction) {
 
-      const baseKnex =  knex({ client: 'pg'});
+      const baseKnex =  this.optional?.knexConnection;
       const knexConnectionCopy = this.knexConnection.clone();
       const filtersCopy = this.filters;
+      const aggregateFunction = this.aggregateFunction;
+      const cleanFields = this.cleanFields();
       
-      numberOfElements = baseKnex.count().from(  
-        function filteredData () {
-          filterBuilder(knexConnectionCopy, filtersCopy).clone()
-        }
-      )
+      const previusNumberOfElements = baseKnex?.select().count().from({  
+        main: (function filteredData () {
+          return filterBuilder(knexConnectionCopy, filtersCopy).select(aggregateFunction).clone().groupBy(cleanFields);
+        })()
+      });
+
+      numberOfElements = await previusNumberOfElements;
 
 
     }

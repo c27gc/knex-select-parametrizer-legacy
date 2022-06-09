@@ -80,6 +80,7 @@ export interface IFieldMatch {
 }
 
 export interface IOptional {
+  knexConnection ?: Knex;
   fieldMapping?: IFieldMapping;
   groupBy?: string[];
   strictFields?: boolean;
